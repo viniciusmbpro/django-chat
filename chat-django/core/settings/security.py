@@ -15,3 +15,10 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',  # noqa: E501
     },
 ]
+
+AUTHENTICATION_BACKENDS = [
+    'accounts.backend.EmailBackend',
+    # 'django.contrib.auth.backends.ModelBackend',
+]
+
+AUTH_USER_MODEL = 'accounts.Account'

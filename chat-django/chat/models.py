@@ -17,7 +17,7 @@ class Chat(BaseModel):
 
 
 class ChatParticipant(models.Model):
-    chat = models.ForeignKey(Chat, on_delete=models.CASCADE)
+    chat = models.ForeignKey(Chat, on_delete=models.CASCADE, related_name='chat_participants')
     user = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='chat_participants')
 
     def __str__(self):
