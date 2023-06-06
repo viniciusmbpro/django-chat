@@ -4,11 +4,11 @@
 
 {% block content %}
 <div class="main-content main-content-list container">
-{% for recipe in recipes %}
-    {% include 'recipes/partials/recipe.html' %}
+{% for chat in chats %}
+    {% include 'chat/partials/chat.html' %}
 {% empty %}
     <div class="center m-y">
-        <h1>No recipes found here 🥲</h1>
+        <h1>No chats found here 🥲</h1>
     </div>
 {% endfor %}
 </div>

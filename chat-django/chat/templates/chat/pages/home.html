@@ -5,10 +5,11 @@
 {% block content %}
 
 {% include 'global/partials/messages.html' %}
+{% include 'global/partials/search.html' %}
 
 <div class="main-content main-content-list container">
 {% for chat in chats %}
-    {% include 'chat/partials/recipe.html' %}
+    {% include 'chat/partials/chat.html' %}
 {% empty %}
     <div class="center m-y">
         <h1>No chats found here 🥲</h1>

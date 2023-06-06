@@ -1,0 +1,38 @@
+{% extends 'global/base.html' %}
+
+{% block title %}{{ chat.name }} | {% endblock title %}
+
+{% block content %}
+<div class="main-content main-content-detail container">
+    <div class="row chat-container">
+        <h1>{{ chat.name }}</h1>
+
+        <h2>Participantes:</h2>
+        <ul class="participants-list">
+            {% for participant in chat.chat_participants.all %}
+            <li>{{ participant.user.email }}</li>
+            {% endfor %}
+        </ul>
+      
+        <h2>Mensagens:</h2>
+        <ul class="messages-list">
+            {% for message in chat.messages_to.all %}
+            <li>
+                <div class="message">
+                    <div class="message-content">{{ message.text }}</div>
+                    <div class="message-sender">{{ message.created_by }}</div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+
+        <div class="message-form">
+            <form action="{% url 'chat:add-message' chat.id %}" method="POST">
+                {% csrf_token %}
+                <input type="text" name="message" placeholder="Digite sua mensagem..." required>
+                <button type="submit">Enviar</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,13 @@
+{% load i18n %}
+
+<div class="recipe recipe-list-item">
+    <h4><a href="{% url 'chat:chat-view' chat.id %}">{{ chat.name }}</a></h4> | Participantes: {{ chat.participants_count }} | Messagens: {{ chat.messages_count }}
+    <form class="inline-form form-logout" action="{% url 'chat:get-in' chat.id %}" method="POST">
+        {% csrf_token %}
+        {% if not chat.is_participant %}
+            <button type="submit" id="entrar-chat">{% trans "Entrar no chat" %}</button>
+        {% else %}
+            <button type="button" id="participando-chat">{% trans "Participando" %}</button>
+        {% endif %}
+    </form>
+</div>

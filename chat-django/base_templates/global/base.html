@@ -4,17 +4,15 @@
 
 <head>
     {% include 'global/partials/head.html' %}
-    <title>{% block title %}{% endblock title %} Recipes</title>
+    <title>{% block title %}{% endblock title %} Chat Django</title>
 </head>
 
 <body>
     {% include 'global/partials/menu.html' %}
     {% include 'global/partials/header.html' %}
-    {% include 'global/partials/search.html' %}
 
     <main class="main-content-container">
         {% block content %}{% endblock content %}
-        {% include 'global/partials/pagination.html' %}
     </main>
 
     {% include 'global/partials/footer.html' %}

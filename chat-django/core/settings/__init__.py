@@ -8,3 +8,4 @@ from .databases import *
 from .Internationalization import *
 from .security import *
 from .templates import *
+from .drf import *

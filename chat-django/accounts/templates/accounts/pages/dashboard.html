@@ -1,0 +1,41 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Dashboard ({{ user }}) | {% endblock title %}
+
+{% block content %}
+<div class="main-content center container">
+  <div class="dashboard-profile">
+    <h2>Dashboard ({{ user }})</h2>
+    {% include 'accounts/partials/form_logout.html' %}
+    <a class="authors-logout-link logout-button" href="#">Sair</a>
+  </div>
+
+  {% include 'accounts/partials/login_message.html' %}
+  {% include 'global/partials/messages.html' %}
+
+  <div class="dashboard-chats-container">
+    <h3>Seus Chats</h3>
+
+    <ul class="chats-list">
+      {% for chat in chats %}
+        <li class="chat-item">
+          <div class="chat-info">
+            <a href="{% url 'chat:chat-view' chat.id %}" class="chat-name">{{ chat.name }}</a>
+            <span class="chat-date">{{ chat.created_at|date:"d M Y" }}</span>
+            <span class="chat-time">{{ chat.created_at|time:"H:i" }}</span>
+          </div>
+          <form class="inline-form form-delete" action="{% url 'accounts:dashboard_chat_delete' %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="id" value="{{ chat.id }}">
+            <button class="delete-button" type="submit">❌</button>
+          </form>
+        </li>
+      {% empty %}
+        <li class="no-chats-message">
+          <p>Você não tem chats. Crie um.</p>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock content %}

@@ -4,8 +4,9 @@ from django.db.models import Model
 from django.db.models.fields import UUIDField, DateTimeField
 from django.db.models.fields.related import ForeignKey, CASCADE
 
+
 class BaseModelMixin(Model):
-    id = UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True, verbose_name="id", db_index=True, help_text="Identificador único do registro")  # noqa
     created_by = ForeignKey(
         to="accounts.Account",
         verbose_name="criado por",

@@ -11,16 +11,16 @@
 
   <div class="menu-content">
     <nav class="menu-nav">
-      <a href="{% url 'recipes:home' %}">Home</a>
+      <a href="">Home</a>
 
       {% if user.is_authenticated %}
-        <a href="{% url 'authors:dashboard_recipe_new' %}">New recipe</a>
-        <a href="{% url 'authors:dashboard' %}">Dashboard</a>
-        <a class="authors-logout-link" href="{% url 'authors:logout' %}">Logout</a>
-        {% include 'authors/partials/form_logout.html' %}
+        <a href="{% url 'accounts:dashboard_chat_new' %}">New chat</a>
+        <a href="{% url 'accounts:dashboard' %}">Dashboard</a>
+        <a class="authors-logout-link" href="{% url 'accounts:logout' %}">Logout</a>
+        {% include 'accounts/partials/form_logout.html' %}
       {% else %}
-        <a href="{% url 'authors:login' %}">Login</a>
-        <a href="{% url 'authors:register' %}">Register</a>
+        <a href="{% url 'accounts:login' %}">Login</a>
+        <a href="{% url 'accounts:register' %}">Register</a>
     {% endif %}
     </nav>
   </div>

@@ -1,12 +1,13 @@
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.utils.translation import gettext_lazy as _
 
 
 class AccountManager(BaseUserManager):
     def create_user(self, email, password=None, **kwargs):
         if not email:
-            raise ValueError(_('Você precisa fornecer um endereço de email válido.'))
+            raise ValueError(
+                _('Você precisa fornecer um endereço de email válido.'))
         email = self.normalize_email(email)
         account = self.model(email=email, **kwargs)
         account.set_password(password)
@@ -19,17 +20,20 @@ class AccountManager(BaseUserManager):
         return self.create_user(email, password, **kwargs)
 
 
-class Account(AbstractBaseUser):
-    email = models.EmailField(_ ('email address'), unique=True)
+class Account(AbstractBaseUser, PermissionsMixin):
+    email = models.EmailField(_('email address'), unique=True)
+    username = models.CharField(_('username'), max_length=30, blank=True)
     first_name = models.CharField(_('first name'), max_length=30, blank=True)
     last_name = models.CharField(_('last name'), max_length=30, blank=True)
     is_active = models.BooleanField(_('active'), default=True)
     is_staff = models.BooleanField(_('staff'), default=False)
     created_at = models.DateTimeField(_('created at'), auto_now_add=True)
     modified_at = models.DateTimeField(_('modified at'), auto_now=True)
-    photo = models.ImageField(_('photo'), upload_to='accounts/', blank=True, null=True)
+    photo = models.ImageField(
+        _('photo'), upload_to='accounts/', blank=True, null=True)
 
     USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
 
     objects = AccountManager()
 

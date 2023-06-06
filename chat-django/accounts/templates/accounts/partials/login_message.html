@@ -1,0 +1,6 @@
+{% if user.is_authenticated %}
+<div class="login-message">
+  <a href="{% url 'accounts:dashboard' %}">Veja seus chats</a>, 
+  <a href="{% url 'accounts:dashboard_chat_new' %}">Crie um novo chat</a>
+</div>
+{% endif %}
