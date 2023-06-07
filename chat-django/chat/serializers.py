@@ -18,6 +18,12 @@ class MessageSerializer(serializers.ModelSerializer):
                   'video_paths', 'created_at')
 
 
+class ChatSerializerBase(serializers.ModelSerializer):
+    class Meta:
+        model = Chat
+        fields = ('id', 'name')
+    
+
 class ChatSerializerAnonymous(serializers.ModelSerializer):
     participants_count = serializers.SerializerMethodField()
     messages_count = serializers.SerializerMethodField()

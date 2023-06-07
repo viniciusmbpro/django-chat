@@ -9,10 +9,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from chat.models import Chat, ChatParticipant, Message
 from chat.serializers import (
-    ChatSerializerAnonymous, ChatParticipantSerializer, MessageSerializer, ChatSerializerAuthenticated
+    ChatSerializerAnonymous, ChatParticipantSerializer, MessageSerializer, ChatSerializerAuthenticated, ChatSerializerBase
 )
-from drf_spectacular.utils import extend_schema
-from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiExample
 from accounts.forms.chat_form import AccountChatForm
 
 
@@ -26,7 +25,8 @@ class ChatListCreateAPIView(APIView):
         return Response(serializer.data)
     
     def post(self, request):
-        serializer = ChatSerializerAuthenticated(data=request.data)
+        serializer = ChatSerializerBase(data=request.data)
+
         if serializer.is_valid():
             
             serializer.validated_data['created_by'] = request.user
@@ -53,9 +53,24 @@ class ChatDeleteUpdateAPIView(APIView):
         chat.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @extend_schema(
+        description="Update a chat by ID.",
+        request=ChatSerializerBase,
+        responses={
+            200: ChatSerializerAuthenticated,
+        },
+        examples=[
+            OpenApiExample(
+                name="Successful Response",
+                value={
+                    "name": "Updated Chat",
+                }
+            ),
+        ]
+    )
     def put(self, request, id):
         chat = get_object_or_404(Chat, id=id)
-        serializer = ChatSerializerAuthenticated(chat, data=request.data)
+        serializer = ChatSerializerBase(chat, data=request.data)
 
         # verificar se o usuário é o criador do chat
         if chat.created_by != request.user:
@@ -65,6 +80,7 @@ class ChatDeleteUpdateAPIView(APIView):
             )
 
         if serializer.is_valid():
+            serializer.validated_data['modified_by'] = request.user
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -103,7 +119,23 @@ class ChatAddParticipantAPIView(APIView):
 
 class ChatAddMessageAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = MessageSerializer
 
+    @extend_schema(
+        description="Add message.",
+        request=MessageSerializer,
+        responses={
+            200: MessageSerializer,
+        },
+        examples=[
+            OpenApiExample(
+                name="Successful Response",
+                value={
+                    "text": "My first message.",
+                }
+            ),
+        ]
+    )
     def post(self, request, id):
         chat = get_object_or_404(Chat, id=id)
 
@@ -114,7 +146,7 @@ class ChatAddMessageAPIView(APIView):
             )
 
         message = Message(
-            text=request.data['message'],
+            text=request.data['text'],
             chat=chat,
             created_by=request.user,
             modified_by=request.user,
