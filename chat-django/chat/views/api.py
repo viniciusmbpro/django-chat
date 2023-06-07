@@ -16,7 +16,7 @@ from drf_spectacular.types import OpenApiTypes
 from accounts.forms.chat_form import AccountChatForm
 
 
-class ChatOperationsAPIView(APIView):
+class ChatListCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ChatSerializerAnonymous
 
@@ -36,6 +36,23 @@ class ChatOperationsAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class ChatDeleteUpdateAPIView(APIView):
+    serializer_class = ChatSerializerAuthenticated
+    # http_method_names = ['delete','put', 'get', 'head', 'options',]
+
+    def delete(self, request, id):
+        chat = get_object_or_404(Chat, id=id)
+        # verificar se o usuário é o criador do chat
+        if chat.created_by != request.user:
+            return Response(
+                {'detail': 'Você não tem permissão para excluir este chat.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        chat.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     def put(self, request, id):
         chat = get_object_or_404(Chat, id=id)
         serializer = ChatSerializerAuthenticated(chat, data=request.data)
@@ -51,28 +68,7 @@ class ChatOperationsAPIView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class ChatDeleteAPIView(APIView):
-    serializer_class = ChatSerializerAuthenticated
-
-    def delete(self, request, id):
-        chat = get_object_or_404(Chat, id=id)
-        # verificar se o usuário é o criador do chat
-        if chat.created_by != request.user:
-            return Response(
-                {'detail': 'Você não tem permissão para excluir este chat.'},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        
-        chat.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class ChatDetailAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = ChatSerializerAuthenticated
-
+    
     def get(self, request, id):
         chat = get_object_or_404(Chat, id=id)
         serializer = ChatSerializerAuthenticated(chat)

@@ -21,9 +21,6 @@ class ChatListViewBase(LoginRequiredMixin, ListView):
     def get_queryset(self, *args, **kwargs):
         qs = super().get_queryset(*args, **kwargs)
         qs = qs.annotate(
-            participants_count=Count('chat_participants', distinct=True),
-            messages_count=Count('messages_to', distinct=True),
-        ).annotate(
             is_participant=Count('chat_participants', filter=Q(chat_participants__user=self.request.user), distinct=True),
         )
         return qs
