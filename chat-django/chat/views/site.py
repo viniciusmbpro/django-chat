@@ -20,11 +20,11 @@ class ChatListViewBase(LoginRequiredMixin, ListView):
 
     def get_queryset(self, *args, **kwargs):
         qs = super().get_queryset(*args, **kwargs)
-        qs = qs.all().annotate(
-            participants_count=Count('chat_participants'),
-            messages_count=Count('messages_to'),
-            is_participant=Count('chat_participants', filter=Q(
-                chat_participants__user=self.request.user)),
+        qs = qs.annotate(
+            participants_count=Count('chat_participants', distinct=True),
+            messages_count=Count('messages_to', distinct=True),
+        ).annotate(
+            is_participant=Count('chat_participants', filter=Q(chat_participants__user=self.request.user), distinct=True),
         )
         return qs
 
@@ -55,7 +55,7 @@ class ChatGetInView(LoginRequiredMixin, View):
         participant.save()
 
         # Redireciona para a rota chat-view
-        return redirect(reverse('chat:chat-view', kwargs={'pk': chat.id}))
+        return redirect(reverse('chat:chat-view', kwargs={'id': chat.id}))
 
 
 class ChatListViewSearch(ChatListViewBase):
@@ -86,6 +86,7 @@ class ChatListViewSearch(ChatListViewBase):
 
 class ChatDetail(LoginRequiredMixin, DetailView):
     login_url = '/accounts/login'
+    pk_url_kwarg = 'id'
 
     model = Chat
     context_object_name = 'chat'
@@ -127,4 +128,4 @@ class ChatAddMessageView(LoginRequiredMixin, View):
         message.save()
 
         # Redireciona para a rota chat-view
-        return redirect(reverse('chat:chat-view', kwargs={'pk': chat.id}))
+        return redirect(reverse('chat:chat-view', kwargs={'id': chat.id}))

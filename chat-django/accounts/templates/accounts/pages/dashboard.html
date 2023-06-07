@@ -24,7 +24,7 @@
             <span class="chat-date">{{ chat.created_at|date:"d M Y" }}</span>
             <span class="chat-time">{{ chat.created_at|time:"H:i" }}</span>
           </div>
-          <form class="inline-form form-delete" action="{% url 'accounts:dashboard_chat_delete' %}" method="POST">
+          <form class="inline-form form-delete" action="{% url 'chat:dashboard_chat_delete' %}" method="POST">
             {% csrf_token %}
             <input type="hidden" name="id" value="{{ chat.id }}">
             <button class="delete-button" type="submit">❌</button>

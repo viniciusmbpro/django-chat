@@ -1,6 +1,5 @@
 from collections import defaultdict
 from django.core.exceptions import ValidationError
-from chat.models import Chat, Message
 
 
 class AccountChatValidator:
@@ -18,7 +17,7 @@ class AccountChatValidator:
 
         name = cd.get('name')
 
-        # Realize suas validações adicionais aqui
+        # Validações adicionanis aqui
         # ...
 
         if self.errors:
@@ -31,12 +30,3 @@ class AccountChatValidator:
             self.errors['name'].append('Must have at least 5 chars.')
 
         return name
-
-    # def clean_chat_participants(self):
-    #     chat_participants = self.data.get('chat_participants')
-
-    #     if not chat_participants:
-    #         self.errors['chat_participants'].append(
-    #             'At least one participant is required.')
-
-    #     return chat_participants

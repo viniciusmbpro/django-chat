@@ -10,6 +10,17 @@ from chat.models import Chat
 from accounts.forms.chat_form import AccountChatForm
 
 
+@login_required(login_url='accounts:login', redirect_field_name='next')
+def dashboard(request):
+    chats = Chat.objects.filter(chat_participants__user=request.user, created_by=request.user)
+    return render(
+        request,
+        'accounts/pages/dashboard.html',
+        context={
+            'chats': chats,
+        }
+    )
+
 @method_decorator(
     login_required(login_url='accounts:login', redirect_field_name='next'),
     name='dispatch'
@@ -68,7 +79,7 @@ class DashboardChat(View):
 
             messages.success(request, 'Seu chat foi criado com sucesso!')
             return redirect(
-                reverse('accounts:dashboard')
+                reverse('chat:dashboard')
             )
 
         return self.render_chat(form)
@@ -81,6 +92,12 @@ class DashboardChat(View):
 class DashboardChatDelete(DashboardChat):
     def post(self, *args, **kwargs):
         chat = self.get_chat(self.request.POST.get('id'))
+
+        # verifica se o usuário é o criador do chat
+        if chat.created_by != self.request.user:
+            messages.error(self.request, 'You are not the creator of this chat.')
+            return redirect(reverse('chat:dashboard'))
+        
         chat.delete()
         messages.success(self.request, 'Deleted successfully.')
-        return redirect(reverse('accounts:dashboard'))
+        return redirect(reverse('chat:dashboard'))

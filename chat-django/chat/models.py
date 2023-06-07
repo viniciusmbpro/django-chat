@@ -8,9 +8,21 @@ from core.base.models import BaseModel
 from django.db import models
 from accounts.models import Account
 
+from django.db import models
+from django.db.models import Count, Q
+
+class ChatManager(models.Manager):
+    def get_queryset(self):
+        qs = super().get_queryset().annotate(
+            participants_count=Count('chat_participants', distinct=True),
+            messages_count=Count('messages_to', distinct=True),
+        )
+        return qs
 
 class Chat(BaseModel):
     name = models.CharField(max_length=255)
+
+    objects = ChatManager()
 
     def __str__(self):
         return self.name

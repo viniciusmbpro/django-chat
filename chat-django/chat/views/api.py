@@ -9,50 +9,81 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from chat.models import Chat, ChatParticipant, Message
 from chat.serializers import (
-    ChatSerializer, ChatParticipantSerializer, MessageSerializer
+    ChatSerializerAnonymous, ChatParticipantSerializer, MessageSerializer, ChatSerializerAuthenticated
 )
+from drf_spectacular.utils import extend_schema
+from drf_spectacular.types import OpenApiTypes
+from accounts.forms.chat_form import AccountChatForm
 
 
 class ChatOperationsAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = ChatSerializerAnonymous
 
     def get(self, request):
-        qs = Chat.objects.annotate(
-            participants_count=Count('chat_participants'),
-            messages_count=Count('messages_to'),
-            is_participant=Count('chat_participants', filter=Q(
-                chat_participants__user=self.request.user)),
-        )
-        serializer = ChatSerializer(qs, many=True)
+        qs = Chat.objects.all()
+        serializer = ChatSerializerAnonymous(qs, many=True)
         return Response(serializer.data)
-
+    
     def post(self, request):
-        serializer = ChatSerializer(data=request.data)
+        serializer = ChatSerializerAuthenticated(data=request.data)
         if serializer.is_valid():
+            
+            serializer.validated_data['created_by'] = request.user
+            serializer.validated_data['modified_by'] = request.user
+
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, id):
         chat = get_object_or_404(Chat, id=id)
-        serializer = ChatSerializer(chat, data=request.data)
+        serializer = ChatSerializerAuthenticated(chat, data=request.data)
+
+        # verificar se o usuário é o criador do chat
+        if chat.created_by != request.user:
+            return Response(
+                {'detail': 'Você não tem permissão para editar este chat.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class ChatDeleteAPIView(APIView):
+    serializer_class = ChatSerializerAuthenticated
+
     def delete(self, request, id):
         chat = get_object_or_404(Chat, id=id)
+        # verificar se o usuário é o criador do chat
+        if chat.created_by != request.user:
+            return Response(
+                {'detail': 'Você não tem permissão para excluir este chat.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
         chat.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ChatDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = ChatSerializerAuthenticated
 
     def get(self, request, id):
         chat = get_object_or_404(Chat, id=id)
-        serializer = ChatSerializer(chat)
+        serializer = ChatSerializerAuthenticated(chat)
+
+        # verificar se o usuário é participante do chat
+        if not ChatParticipant.objects.filter(chat=chat, user=request.user).exists():
+            return Response(
+                {'detail': 'Você não é participante deste chat.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
         return Response(serializer.data)
 
 

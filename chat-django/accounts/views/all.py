@@ -84,15 +84,3 @@ def logout_view(request):
     messages.success(request, 'Logged out successfully')
     logout(request)
     return redirect(reverse('accounts:login'))
-
-
-@login_required(login_url='accounts:login', redirect_field_name='next')
-def dashboard(request):
-    chats = Chat.objects.filter(chat_participants__user=request.user)
-    return render(
-        request,
-        'accounts/pages/dashboard.html',
-        context={
-            'chats': chats,
-        }
-    )

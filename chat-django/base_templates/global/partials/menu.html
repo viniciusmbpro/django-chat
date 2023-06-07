@@ -14,8 +14,8 @@
       <a href="">Home</a>
 
       {% if user.is_authenticated %}
-        <a href="{% url 'accounts:dashboard_chat_new' %}">New chat</a>
-        <a href="{% url 'accounts:dashboard' %}">Dashboard</a>
+        <a href="{% url 'chat:dashboard_chat_new' %}">New chat</a>
+        <a href="{% url 'chat:dashboard' %}">Dashboard</a>
         <a class="authors-logout-link" href="{% url 'accounts:logout' %}">Logout</a>
         {% include 'accounts/partials/form_logout.html' %}
       {% else %}
