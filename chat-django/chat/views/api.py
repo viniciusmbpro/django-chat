@@ -1,18 +1,16 @@
 from django.shortcuts import get_object_or_404
-from django.urls import reverse
-from django.db.models import Q
-from django.db.models.aggregates import Count
-from django.utils.translation import gettext as _
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from chat.models import Chat, ChatParticipant, Message
 from chat.serializers import (
-    ChatSerializerAnonymous, ChatParticipantSerializer, MessageSerializer, ChatSerializerAuthenticated, ChatSerializerBase
+    ChatSerializerAnonymous,
+    MessageSerializer,
+    ChatSerializerAuthenticated,
+    ChatSerializerBase
 )
 from drf_spectacular.utils import extend_schema, OpenApiExample
-from accounts.forms.chat_form import AccountChatForm
 
 
 class ChatListCreateAPIView(APIView):
@@ -23,12 +21,12 @@ class ChatListCreateAPIView(APIView):
         qs = Chat.objects.all()
         serializer = ChatSerializerAnonymous(qs, many=True)
         return Response(serializer.data)
-    
+
     def post(self, request):
         serializer = ChatSerializerBase(data=request.data)
 
         if serializer.is_valid():
-            
+
             serializer.validated_data['created_by'] = request.user
             serializer.validated_data['modified_by'] = request.user
 
@@ -49,7 +47,7 @@ class ChatDeleteUpdateAPIView(APIView):
                 {'detail': 'Você não tem permissão para excluir este chat.'},
                 status=status.HTTP_403_FORBIDDEN
             )
-        
+
         chat.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -84,13 +82,13 @@ class ChatDeleteUpdateAPIView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     def get(self, request, id):
         chat = get_object_or_404(Chat, id=id)
         serializer = ChatSerializerAuthenticated(chat)
 
         # verificar se o usuário é participante do chat
-        if not ChatParticipant.objects.filter(chat=chat, user=request.user).exists():
+        if not ChatParticipant.objects.filter(chat=chat, user=request.user).exists():  # noqa
             return Response(
                 {'detail': 'Você não é participante deste chat.'},
                 status=status.HTTP_403_FORBIDDEN
@@ -105,7 +103,7 @@ class ChatAddParticipantAPIView(APIView):
     def post(self, request, id):
         chat = get_object_or_404(Chat, id=id)
 
-        if ChatParticipant.objects.filter(chat=chat, user=request.user).exists():
+        if ChatParticipant.objects.filter(chat=chat, user=request.user).exists():  # noqa
             return Response(
                 {'detail': 'Você já é participante deste chat.'},
                 status=status.HTTP_400_BAD_REQUEST
@@ -139,7 +137,7 @@ class ChatAddMessageAPIView(APIView):
     def post(self, request, id):
         chat = get_object_or_404(Chat, id=id)
 
-        if not ChatParticipant.objects.filter(chat=chat, user=request.user).exists():
+        if not ChatParticipant.objects.filter(chat=chat, user=request.user).exists():  # noqa
             return Response(
                 {'detail': 'Você não é participante deste chat.'},
                 status=status.HTTP_400_BAD_REQUEST

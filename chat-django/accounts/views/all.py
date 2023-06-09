@@ -68,7 +68,7 @@ def login_create(request):
     else:
         messages.error(request, 'Invalid username or password')
 
-    return redirect(reverse('accounts:dashboard'))
+    return redirect(reverse('chat:dashboard'))
 
 
 @login_required(login_url='accounts:login', redirect_field_name='next')
