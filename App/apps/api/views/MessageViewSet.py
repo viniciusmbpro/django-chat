@@ -5,6 +5,7 @@ from apps.api.serializers import (
     MessageSerializer,
 )
 from rest_framework import viewsets, mixins
+from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter, OpenApiTypes  # noqa
 
 
 class MessageViewSet(
@@ -23,6 +24,64 @@ class MessageViewSet(
             self.permission_classes.append(IsOwner)
 
         return super().get_permissions()
+
+    @extend_schema(
+        description="Update message.",
+        request=MessageSerializer,
+        responses={
+            200: MessageSerializer,
+        },
+        examples=[
+            OpenApiExample(
+                name="Example Request",
+                value={
+                    "text": "string",
+                    "terms": {
+                        "additionalProp1": "string",
+                        "additionalProp2": "string",
+                        "additionalProp3": "string"
+                    },
+                    "video_paths": {
+                        "additionalProp1": "string",
+                        "additionalProp2": "string",
+                        "additionalProp3": "string"
+                    },
+                }
+            ),
+        ]
+    )
+    def update(self, request, *args, **kwargs):
+        request.data['chat'] = Message.objects.get(id=kwargs['pk']).chat.id.__str__()  # noqa
+        return super().update(request, *args, **kwargs)
+
+    @extend_schema(
+        description="Update message.",
+        request=MessageSerializer,
+        responses={
+            200: MessageSerializer,
+        },
+        examples=[
+            OpenApiExample(
+                name="Example Request",
+                value={
+                    "text": "string",
+                    "terms": {
+                        "additionalProp1": "string",
+                        "additionalProp2": "string",
+                        "additionalProp3": "string"
+                    },
+                    "video_paths": {
+                        "additionalProp1": "string",
+                        "additionalProp2": "string",
+                        "additionalProp3": "string"
+                    },
+                }
+            ),
+        ]
+    )
+    def partial_update(self, request, *args, **kwargs):
+        request.data['chat'] = Message.objects.get(id=kwargs['pk']).chat.id.__str__()  # noqa
+        return super().partial_update(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user, modified_by=self.request.user)  # noqa

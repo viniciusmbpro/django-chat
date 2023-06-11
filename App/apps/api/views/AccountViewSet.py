@@ -72,6 +72,16 @@ class AccountViewSet(
             status=status.HTTP_201_CREATED,
             headers=headers)
 
+    def perform_update(self, serializer):
+        password = serializer.validated_data.get('password')
+        if password:
+            serializer.validated_data.pop('password')
+            serializer.save()
+            self.request.user.set_password(password)
+            self.request.user.save()
+        else:
+            serializer.save()
+
     @extend_schema(
         description="Search account by email and/or username.",
         request=None,
@@ -117,11 +127,10 @@ class AccountViewSet(
 
     @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated], url_path='my-chats')  # noqa
     def my_chats(self, request):
-        serializer = AccountMyChatsSerializer(request.user, context={'request': request})  # noqa
+        serializer = AccountMyChatsSerializer(request.user)  # noqa
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated], url_path='participant-chats')  # noqa
     def participant_chats(self, request):
-        serializer = AccountParticipantChatsSerializer(
-            request.user, context={'request': request})
+        serializer = AccountParticipantChatsSerializer(request.user)
         return Response(serializer.data)
