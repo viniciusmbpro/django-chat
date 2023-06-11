@@ -10,7 +10,7 @@ python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
-### 3. Edite o arquivo .env-example e adicione as variáveis de ambiente
+### 3. Entre na pasta App/ e edite o arquivo .env-example e adicione as variáveis de ambiente
 
 ### 4. Execute as migrações e inicie o servidor
 ```bash
@@ -22,7 +22,7 @@ python manage.py runserver
 ```bash
 http://127.0.0.1:8000/
 ```
-### Acesso a api pelo swagger
+### Documentação da API pelo swagger
 ```bash
 http://127.0.0.1:8000/api/swagger/
 ```
